@@ -5,142 +5,299 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shell Volume Calculator</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,700&family=Poppins:wght@300;400;500;600&display=swap');
+
         html, body {
-            min-height: 100vh;
+            height: 100vh; /* Fits exactly to the viewport height */
+            width: 100vw;
             margin: 0;
-        }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            /* Full-screen background using the Babylonia areolata shell pattern */
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/6/6d/Babylonia_areolata_01.JPG');
+            overflow: hidden; /* Prevents scrolling */
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; /* Modern, elegant sans-serif */
+            background-color: #2a1f18; /* Darker fallback */
+            /* Points to the local image file in the same folder */
+            background-image: url('image_cf92c9.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            display: flex; 
-            justify-content: center; 
-            align-items: center; /* Centers the calculator on the page */
-            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
             color: #4a3b32;
+            /* Creates a dark vignette around the edges to make the center pop */
+            box-shadow: inset 0 0 150px rgba(20, 10, 0, 0.8); 
         }
-        .container { 
-            background: rgba(253, 244, 235, 0.92); 
-            padding: 35px; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6); 
-            width: 420px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(4px); 
+        
+        @keyframes subtleReveal {
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
-        h2 { 
-            text-align: center; 
-            color: #5c3a21; 
-            margin-top: 0;
-            font-size: 24px;
-            border-bottom: 2px solid #dcb591;
-            padding-bottom: 10px;
-        }
-        .input-group { margin-bottom: 16px; }
-        label { 
-            display: block; 
-            font-weight: 600; 
-            margin-bottom: 6px; 
-            color: #5c3a21; 
-        }
-        input[type="number"] { 
-            width: 100%; 
-            padding: 10px; 
-            border: 2px solid #dcb591; 
-            border-radius: 6px; 
+
+        .container {
+            background: linear-gradient(135deg, rgba(253, 244, 235, 0.95), rgba(235, 222, 206, 0.88));
+            padding: 40px;
+            border-radius: 16px;
+            /* Double border effect using box-shadow for a premium glass look */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.7);
+            width: 100%;
+            max-width: 440px;
+            max-height: 100%; 
+            overflow-y: auto; 
+            backdrop-filter: blur(8px);
             box-sizing: border-box;
-            font-size: 16px;
-            background-color: #fffaf0;
+            animation: subtleReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+        }
+
+        /* Large faint shell emoji as a watermark behind the text */
+        .container::before {
+            content: '🐚';
+            position: absolute;
+            font-size: 180px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
+            filter: grayscale(100%) sepia(100%) hue-rotate(30deg); /* Make it brownish */
+        }
+
+        .container > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Elegant custom scrollbar */
+        .container::-webkit-scrollbar { width: 8px; }
+        .container::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 4px; }
+        .container::-webkit-scrollbar-thumb { background: rgba(179, 110, 54, 0.5); border-radius: 4px; }
+        .container::-webkit-scrollbar-thumb:hover { background: rgba(179, 110, 54, 0.8); }
+        
+        h2 {
+            text-align: center;
+            color: #4a2e1a;
+            margin-top: 0;
+            font-size: 32px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.9);
+            letter-spacing: 0.5px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            height: 1px;
+            width: 50px;
+            background: linear-gradient(to right, transparent, #b36e36, transparent);
+        }
+        .divider svg {
+            margin: 0 15px;
+            color: #b36e36;
+            width: 20px;
+            height: 20px;
+            opacity: 0.8;
+        }
+
+        .input-group { margin-bottom: 18px; }
+        label {
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            color: #6b4c36;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e3cbb4;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            background-color: rgba(255, 255, 255, 0.6);
             color: #333;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
         input[type="number"]:focus {
             border-color: #b36e36;
+            background-color: #ffffff;
             outline: none;
+            box-shadow: 0 0 0 3px rgba(179, 110, 54, 0.15), inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        button { 
-            width: 100%; 
-            padding: 14px; 
-            background-color: #b36e36; 
-            color: white; 
-            border: none; 
-            border-radius: 6px; 
-            font-size: 18px; 
-            cursor: pointer; 
-            font-weight: bold;
+        input[type="number"]::placeholder {
+            color: #bbaea6;
+            font-weight: 300;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #b36e36 0%, #8b5122 100%);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: 600;
             margin-top: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 6px 12px rgba(139, 81, 34, 0.3);
+            transition: all 0.3s ease;
         }
-        button:hover { 
-            background-color: #8b5122; 
-            transform: translateY(-1px);
+        button:hover {
+            background: linear-gradient(135deg, #c47b41 0%, #9c5c28 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(139, 81, 34, 0.4);
         }
         button:active {
             transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(139, 81, 34, 0.3);
         }
-        .results { 
-            margin-top: 25px; 
-            padding: 20px; 
-            background-color: #f4ebd8; 
-            border-radius: 8px; 
-            border-left: 5px solid #b36e36;
-            display: none; 
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        
+        .results {
+            margin-top: 30px;
+            padding: 20px 25px;
+            background: linear-gradient(to bottom right, #fbf5ee, #f0e4d4);
+            border-radius: 12px;
+            border: 1px solid #e3cbb4;
+            border-left: 6px solid #b36e36;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            animation: subtleReveal 0.5s ease-out;
         }
         .results strong {
             display: block;
-            font-size: 18px;
-            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            margin-bottom: 12px;
             color: #5c3a21;
+            border-bottom: 1px dashed #dcb591;
+            padding-bottom: 8px;
         }
-        .results p { margin: 8px 0; font-size: 16px; color: #4a3b32;}
-        .results span { font-weight: bold; color: #2c1e16; }
-        .error-text { color: #b73229 !important; font-weight: bold; }
+        .results p { 
+            margin: 10px 0; 
+            font-size: 15px; 
+            color: #5c4a3d; 
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
+        }
+        .results span { font-weight: 600; color: #2c1e16; font-size: 16px; }
+        .error-text { color: #d34336 !important; font-weight: 700 !important; }
+        
+        #messageBoxOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        #messageBox {
+            background: linear-gradient(135deg, #fffaf0, #f4ebd8);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            text-align: center;
+            max-width: 80%;
+            border: 1px solid #dcb591;
+            animation: subtleReveal 0.3s ease-out;
+        }
+        #messageBox p {
+            color: #5c3a21;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        #messageBox button {
+            width: auto;
+            padding: 10px 30px;
+            margin-top: 0;
+            box-shadow: 0 4px 6px rgba(139, 81, 34, 0.2);
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Shell Volume Calculator</h2>
+    <h2>Shell Volume</h2>
+    
+    <div class="divider">
+        <!-- Ocean droplet SVG icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+        </svg>
+    </div>
     
     <div class="input-group">
-        <label>Parameter b:</label>
+        <label>Parameter b</label>
         <input type="number" id="valB" step="0.001" value="" placeholder="e.g., 0.083">
     </div>
     <div class="input-group">
-        <label>Parameter d (cm):</label>
+        <label>Parameter d (cm)</label>
         <input type="number" id="valD" step="0.001" value="" placeholder="e.g., 0.059">
     </div>
     <div class="input-group">
-        <label>Parameter AL (cm):</label>
+        <label>Parameter AL (cm)</label>
         <input type="number" id="valAL" step="0.01" value="" placeholder="e.g., 2.10">
     </div>
     <div class="input-group">
-        <label>Parameter AW (cm):</label>
+        <label>Parameter AW (cm)</label>
         <input type="number" id="valAW" step="0.01" value="" placeholder="e.g., 1.31">
     </div>
     <div class="input-group">
-        <label>Vdis (ml) (Optional):</label>
+        <label>Vdis (ml) <span style="text-transform:none; font-size:11px; color:#a99a8f;">(Optional)</span></label>
         <input type="number" id="valVdis" step="any" value="" placeholder="Leave blank if none">
     </div>
-
     <button onclick="calculate()">Calculate Volume</button>
-
+    
     <div class="results" id="resultsBox">
-        <strong>Results:</strong>
-        <p>Area = <span id="outArea"></span></p>
-        <p>Arclength = <span id="outArc"></span></p>
-        <p>Vcal = <span id="outVcal"></span></p>
-        <p id="errorRow" style="display: none;">% Error = <span id="outError" class="error-text"></span></p>
+        <strong>Results</strong>
+        <p><span>Area</span> <span id="outArea"></span></p>
+        <p><span>Arclength</span> <span id="outArc"></span></p>
+        <p><span>Vcal</span> <span id="outVcal"></span></p>
+        <p id="errorRow" style="display: none;"><span>% Error</span> <span id="outError" class="error-text"></span></p>
+    </div>
+</div>
+
+<div id="messageBoxOverlay">
+    <div id="messageBox">
+        <p id="messageBoxText"></p>
+        <button onclick="closeMessageBox()">OK</button>
     </div>
 </div>
 
 <script>
+    function showMessage(message) {
+        document.getElementById('messageBoxText').innerText = message;
+        document.getElementById('messageBoxOverlay').style.display = 'flex';
+    }
+
+    function closeMessageBox() {
+        document.getElementById('messageBoxOverlay').style.display = 'none';
+    }
+
     function calculate() {
         const b = parseFloat(document.getElementById('valB').value);
         const d = parseFloat(document.getElementById('valD').value);
@@ -149,35 +306,32 @@
         const rawVdis = document.getElementById('valVdis').value;
         
         if (isNaN(b) || isNaN(d) || isNaN(AL) || isNaN(AW)) {
-            alert("Please fill out b, d, AL, and AW to calculate.");
+            showMessage("Please fill out b, d, AL, and AW to calculate.");
             return;
         }
-
+        
         const pi = Math.PI;
-
         const area = ((AL * AW) / 4) * pi * Math.exp(-16 * pi * b);
         const c = (Math.sqrt(Math.pow(d, 2) * (Math.pow(b, 2) + 1)) / b) * (Math.exp(10 * pi * b) - Math.exp(2 * pi * b));
-
         const k = (area / Math.exp(4 * b * pi)) * 0.7896;
         const A = b / (d * Math.sqrt(Math.pow(b, 2) + 1));
         const Vcal = k * (1 / (3 * A)) * (Math.exp(30 * pi * b) - Math.exp(6 * pi * b));
-
+        
         document.getElementById('resultsBox').style.display = "block";
         document.getElementById('outArea').innerText = area.toFixed(6);
         document.getElementById('outArc').innerText = c.toFixed(6);
         document.getElementById('outVcal').innerText = Vcal.toFixed(6);
-
+        
         const errorRow = document.getElementById('errorRow');
         if (rawVdis !== "" && !isNaN(parseFloat(rawVdis))) {
             const Vdis = parseFloat(rawVdis);
             const percentError = (Math.abs(Vdis - Vcal) / Vdis) * 100;
             document.getElementById('outError').innerText = percentError.toFixed(4) + "%";
-            errorRow.style.display = "block";
+            errorRow.style.display = "flex"; /* Updated to flex for the new layout */
         } else {
             errorRow.style.display = "none";
         }
     }
 </script>
-
 </body>
 </html>
