@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shell Volume Calculator</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f4f4f9; 
+            /* Added Babylonia areolata background */
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/6/6d/Babylonia_areolata_01.JPG');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex; 
+            justify-content: center; 
+            padding-top: 40px;
+        }
+        .container { 
+            /* Made the white box slightly transparent so the background shows through */
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3); 
+            width: 400px;
+        }
+        h2 { text-align: center; color: #333; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input[type="number"] { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #218838; }
+        .results { 
+            margin-top: 25px; 
+            padding: 15px; 
+            background-color: #e9ecef; 
+            border-radius: 5px; 
+            display: none; /* Hidden until calculated */
+        }
+        .results p { margin: 8px 0; font-size: 15px; color: #333;}
+        .error-text { color: #d9534f; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Volume Calculator</h2>
+    
+    <div class="input-group">
+        <label>Parameter b:</label>
+        <input type="number" id="valB" step="0.01" placeholder="e.g., 0.08388">
+    </div>
+    <div class="input-group">
+        <label>Parameter d (cm):</label>
+        <input type="number" id="valD" step="0.01" placeholder="e.g., 0.059">
+    </div>
+    <div class="input-group">
+        <label>Parameter AL (cm):</label>
+        <input type="number" id="valAL" step="0.1" placeholder="e.g., 2.1">
+    </div>
+    <div class="input-group">
+        <label>Parameter AW (cm):</label>
+        <input type="number" id="valAW" step="0.1" placeholder="e.g., 1.31">
+    </div>
+    <div class="input-group">
+        <label>Vdis (ml) (Optional):</label>
+        <input type="number" id="valVdis" step="any" placeholder="Leave blank if none">
+    </div>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div class="results" id="resultsBox">
+        <strong>Results: </strong>
+        <p>Area = <span id="outArea"></span></p>
+        <p>Arclength = <span id="outArc"></span></p>
+        <p>Vcal = <span id="outVcal"></span></p>
+        <p id="errorRow" style="display: none;">% Error = <span id="outError" class="error-text"></span></p>
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        // Grab values from inputs
+        const b = parseFloat(document.getElementById('valB').value);
+        const d = parseFloat(document.getElementById('valD').value);
+        const AL = parseFloat(document.getElementById('valAL').value);
+        const AW = parseFloat(document.getElementById('valAW').value);
+        const rawVdis = document.getElementById('valVdis').value;
+        
+        // Ensure required fields are filled out
+        if (isNaN(b) || isNaN(d) || isNaN(AL) || isNaN(AW)) {
+            alert("Please fill out b, d, AL, and AW to calculate.");
+            return;
+        }
+
+        const pi = Math.PI;
+
+        // 1. Calculate Area
+        // Formula: (AL*AW/4) * Pi * Exp[-2 * b * (8 * Pi)]
+        const area = ((AL * AW) / 4) * pi * Math.exp(-16 * pi * b);
+
+        // 3. Calculate Arclength (c)
+        // Formula: (Sqrt[d^2 * (b^2 + 1)] / b) * (Exp[10*Pi*b] - Exp[2*Pi*b])
+        const c = (Math.sqrt(Math.pow(d, 2) * (Math.pow(b, 2) + 1)) / b) * (Math.exp(10 * pi * b) - Math.exp(2 * pi * b));
+
+        // 4. Calculate Exact Vcal (using the solved algebraic integral)
+        const k = (area / Math.exp(4 * b * pi)) * 0.7896;
+        const A = b / (d * Math.sqrt(Math.pow(b, 2) + 1));
+        const Vcal = k * (1 / (3 * A)) * (Math.exp(30 * pi * b) - Math.exp(6 * pi * b));
+
+        // Display basic results
+        document.getElementById('resultsBox').style.display = "block";
+        document.getElementById('outArea').innerText = area.toFixed(6);
+        document.getElementById('outArc').innerText = c.toFixed(6);
+        document.getElementById('outVcal').innerText = Vcal.toFixed(6);
+
+        // 5. Calculate % Error (Only if Vdis has a valid number)
+        const errorRow = document.getElementById('errorRow');
+        if (rawVdis !== "" && !isNaN(parseFloat(rawVdis))) {
+            const Vdis = parseFloat(rawVdis);
+            const percentError = (Math.abs(Vdis - Vcal) / Vdis) * 100;
+            document.getElementById('outError').innerText = percentError.toFixed(4) + "%";
+            errorRow.style.display = "block";
+        } else {
+            errorRow.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>
